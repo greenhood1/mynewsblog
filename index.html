@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NewsFirst — Latest Headlines</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1e88e5;
+    --muted:#6b7280;
+    --bg:#f7f9fc;
+    --card:#ffffff;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial,sans-serif;
+    background:var(--bg);
+    color:#111827;
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    background:#fff;
+    border-bottom:1px solid #e6eef8;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:44px;height:44px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+  }
+  .site-title{font-weight:700}
+  .search {flex:1;max-width:420px;margin-left:16px;}
+  .search input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6eef8;background:#fbfdff}
+  main{max-width:var(--maxw);margin:22px auto;padding:0 20px;display:grid;grid-template-columns:2fr 360px;gap:20px;align-items:start}
+  /* Hero / Top story */
+  .hero{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06);display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:center}
+  .hero img{width:100%;height:220px;object-fit:cover;border-radius:10px}
+  .hero .meta{display:flex;flex-direction:column;gap:8px}
+  .tag{display:inline-block;background:rgba(30,136,229,0.12);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px}
+  .hero h1{margin:0;font-size:22px;line-height:1.15}
+  .excerpt{color:var(--muted);margin-top:8px}
+  .hero .meta .info{color:var(--muted);font-size:13px;margin-top:10px;display:flex;gap:12px;align-items:center}
+  .btn{background:var(--accent);color:#fff;padding:9px 14px;border-radius:8px;border:0;font-weight:600;cursor:pointer}
+  /* News list */
+  .news-list{display:grid;gap:14px;margin-top:18px}
+  .card{background:var(--card);padding:12px;border-radius:10px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 4px 12px rgba(15,23,42,0.04)}
+  .card img{width:140px;height:90px;object-fit:cover;border-radius:8px}
+  .card .body{flex:1}
+  .card h3{margin:0;font-size:16px}
+  .card p{margin:6px 0;color:var(--muted);font-size:14px}
+  .meta-small{font-size:12px;color:var(--muted)}
+  .read-more{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer}
+  /* Sidebar */
+  aside{position:relative}
+  .side-card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+  .side-card h4{margin:0 0 8px 0}
+  .trending-item{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f1f7fb}
+  .trending-item:last-child{border-bottom:0}
+  .trending-item img{width:60px;height:44px;object-fit:cover;border-radius:6px}
+  .small{font-size:13px;color:var(--muted)}
+  footer{max-width:var(--maxw);margin:28px auto;padding:20px;text-align:center;color:var(--muted)}
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(3,7,18,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:200}
+  .modal.open{display:flex}
+  .modal-content{max-width:900px;width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:10px;padding:20px}
+  .modal-content img{width:100%;height:360px;object-fit:cover;border-radius:8px}
+  .close{background:#f1f5f9;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+  /* Responsive */
+  @media (max-width:980px){
+    main{grid-template-columns:1fr 320px}
+    .hero{grid-template-columns:1fr}
+    .hero img{height:200px}
+  }
+  @media (max-width:740px){
+    .wrap{padding:12px}
+    main{grid-template-columns:1fr; padding:0 12px}
+    aside{order:2}
+    .hero img{height:180px}
+    .search{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div style="display:flex;align-items:center;">
+      <div class="brand">
+        <div class="logo">NF</div>
+        <div>
+          <div class="site-title">NewsFirst</div>
+          <div style="font-size:12px;color:var(--muted)">Breaking news as it happens</div>
+        </div>
+      </div>
+      <div class="search" style="margin-left:18px">
+        <input id="searchBox" type="search" placeholder="Search headlines, topics or authors..." aria-label="Search">
+      </div>
+    </div>
+    <nav style="display:flex;gap:10px;align-items:center">
+      <a href="#" onclick="scrollToTop()">Home</a>
+      <a href="#latest">Latest</a>
+      <a href="#about" style="color:var(--muted)">About</a>
+      <button class="btn" onclick="openSubscribe()">Subscribe</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Left: Hero and news list -->
+  <div>
+    <!-- HERO: Latest article (auto) -->
+    <section class="hero" id="hero">
+      <!-- Content injected by JS -->
+      <div class="meta">
+        <span class="tag" id="heroCategory">Top</span>
+        <h1 id="heroTitle">Loading latest...</h1>
+        <p class="excerpt" id="heroExcerpt">Please wait while the latest headline is loaded.</p>
+        <div class="info">
+          <div class="meta-small" id="heroDate">—</div>
+          <div style="margin-left:auto">
+            <button class="btn" id="heroRead">Read More</button>
+          </div>
+        </div>
+      </div>
+      <img id="heroImg" src="" alt="Top story image" />
+    </section>
+
+    <!-- Latest news list -->
+    <section id="latest" style="margin-top:18px">
+      <h2 style="margin:0 0 10px 0">Latest News</h2>
+      <div id="newsList" class="news-list">
+        <!-- Injected by JS -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Right: Sidebar -->
+  <aside>
+    <div class="side-card" style="margin-bottom:16px">
+      <h4>Trending</h4>
+      <div id="trendingList"></div>
+    </div>
+
+    <div class="side-card" style="margin-bottom:16px">
+      <h4>Categories</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <button class="small" style="padding:6px 10px;border-radius:8px;border:1px solid #eef6ff;background:#fff;cursor:pointer" onclick="filterCategory('Politics')">Politics</button>
+        <button class="small" style="padding:6px 10px;border-radius:8px;border:1px solid #eef6ff;background:#fff;cursor:pointer" onclick="filterCategory('Business')">Business</button>
+        <button class="small" style="padding:6px 10px;border-radius:8px;border:1px solid #eef6ff;background:#fff;cursor:pointer" onclick="filterCategory('Tech')">Tech</button>
+        <button class="small" style="padding:6px 10px;border-radius:8px;border:1px solid #eef6ff;background:#fff;cursor:pointer" onclick="filterCategory('Lifestyle')">Lifestyle</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <h4>Subscribe</h4>
+      <p class="small">Get daily headlines to your inbox</p>
+      <input id="subEmail" type="email" placeholder="you@example.com" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin-top:8px">
+      <button class="btn" style="width:100%;margin-top:10px" onclick="subscribe()">Subscribe</button>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div>© <span id="year"></span> NewsFirst · Built for speed and clarity</div>
+</footer>
+
+<!-- Article Modal -->
+<div id="modal" class="modal" aria-hidden="true" role="dialog">
+  <div class="modal-content" role="document">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;color:var(--muted)" id="modalCategory">Category</div>
+        <h2 id="modalTitle" style="margin:6px 0 0 0">Title</h2>
+        <div class="meta-small" id="modalDate">Date</div>
+      </div>
+      <button class="close" onclick="closeModal()">Close</button>
+    </div>
+
+    <img id="modalImg" src="" alt="Article image" />
+    <div id="modalBody" style="padding-top:12px;line-height:1.6;color:#222"></div>
+  </div>
+</div>
+
+<script>
+/*
+  POSTS DATA
+  - Edit this array to add articles.
+  - Date must be ISO string (YYYY-MM-DD or full).
+  - The script auto-sorts by date (newest first).
+  - Later you can replace this with a fetch() to a JSON feed or backend API.
+*/
+const posts = [
+  {
+    id: "p1",
+    title: "Government launches new tech hub for startups",
+    excerpt: "A government-backed innovation hub opens to support early-stage startups with funding and mentoring.",
+    body: "<p>The new hub will provide co-working, seed grants and mentorship for emerging tech founders. Officials said the initiative aims to boost local innovation and job creation.</p><p>Representatives from local universities will also partner with the hub to run training programs.</p>",
+    category: "Tech",
+    date: "2025-09-15T10:30:00Z",
+    image: "https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_1280.jpg"
+  },
+  {
+    id: "p2",
+    title: "Market rallies as businesses report strong Q2 earnings",
+    excerpt: "Stocks closed higher after several companies beat market expectations in the second quarter.",
+    body: "<p>Major indexes recorded gains as investors reacted positively to better-than-expected earnings reports. Analysts say the momentum could continue if consumer demand remains stable.</p>",
+    category: "Business",
+    date: "2025-09-17T08:20:00Z",
+    image: "https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_1280.jpg"
+  },
+  {
+    id: "p3",
+    title: "Local food vendor adopts digital payments, grows sales",
+    excerpt: "A small food business saw a 40% sales increase after adding easy digital payment options.",
+    body: "<p>The business owner said switching to mobile payments helped attract younger customers and sped up service during peak hours.</p>",
+    category: "Business",
+    date: "2025-09-16T14:00:00Z",
+    image: "https://cdn.pixabay.com/photo/2016/11/29/04/43/restaurant-1869674_1280.jpg"
+  },
+  {
+    id: "p4",
+    title: "City marathon draws thousands, promotes healthy living",
+    excerpt: "Runners from across the region competed in a charity marathon to promote fitness.",
+    body: "<p>The marathon raised funds for local health initiatives and encouraged community participation.</p>",
+    category: "Lifestyle",
+    date: "2025-09-14T06:00:00Z",
+    image: "https://cdn.pixabay.com/photo/2016/11/19/17/05/running-1837150_1280.jpg"
+  }
+];
+
+// Utilities
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const formatDate = (iso) => {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+};
+
+// Sort posts newest first
+posts.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+// Render hero (latest)
+const heroPost = posts[0];
+const heroTitle = $("#heroTitle");
+const heroExcerpt = $("#heroExcerpt");
+const heroImg = $("#heroImg");
+const heroDate = $("#heroDate");
+const heroCategory = $("#heroCategory");
+const heroRead = $("#heroRead");
+
+function renderHero(post){
+  heroTitle.textContent = post.title;
+  heroExcerpt.textContent = post.excerpt;
+  heroImg.src = post.image;
+  heroImg.alt = post.title;
+  heroDate.textContent = formatDate(post.date);
+  heroCategory.textContent = post.category;
+  heroRead.onclick = () => openArticle(post.id);
+}
+renderHero(heroPost);
+
+// Render news list (excluding top hero if you want)
+const newsList = $("#newsList");
+function renderNewsList(items){
+  newsList.innerHTML = "";
+  items.forEach(p => {
+    // Skip hero item in list or include — we'll include all but mark hero visually if needed
+    const el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML = `
+      <img loading="lazy" src="${p.image}" alt="${escapeHtml(p.title)}">
+      <div class="body">
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="font-size:13px;color:var(--muted)">${p.category}</div>
+          <div style="flex:1"></div>
+          <div class="meta-small">${formatDate(p.date)}</div>
+        </div>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml(p.excerpt)}</p>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="read-more" onclick="openArticle('${p.id}')">Read More</button>
+        </div>
+      </div>
+    `;
+    newsList.appendChild(el);
+  });
+}
+renderNewsList(posts);
+
+// Render trending (top 3 newest)
+const trendingList = $("#trendingList");
+function renderTrending(items){
+  trendingList.innerHTML = "";
+  items.slice(0,3).forEach(p=>{
+    const el = document.createElement("div");
+    el.className = "trending-item";
+    el.innerHTML = `<img src="${p.image}" alt="${escapeHtml(p.title)}"><div style="flex:1"><div style="font-weight:600;font-size:14px">${escapeHtml(p.title)}</div><div class="small">${formatDate(p.date)}</div></div>`;
+    el.onclick = () => openArticle(p.id);
+    trendingList.appendChild(el);
+  });
+}
+renderTrending(posts);
+
+// Modal handling
+const modal = $("#modal");
+const modalTitle = $("#modalTitle");
+const modalImg = $("#modalImg");
+const modalBody = $("#modalBody");
+const modalDate = $("#modalDate");
+const modalCategory = $("#modalCategory");
+
+function openArticle(id){
+  const post = posts.find(p=>p.id===id);
+  if(!post) return;
+  modalTitle.textContent = post.title;
+  modalImg.src = post.image;
+  modalBody.innerHTML = post.body; // body contains HTML
+  modalDate.textContent = formatDate(post.date);
+  modalCategory.textContent = post.category;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeModal(){
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+}
+
+// Search filter
+$("#searchBox").addEventListener("input", (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  if(!q) {
+    renderNewsList(posts);
+    renderTrending(posts);
+    renderHero(posts[0]);
+    return;
+  }
+  const filtered = posts.filter(p => (p.title+p.excerpt+p.category).toLowerCase().includes(q));
+  if(filtered.length) renderHero(filtered[0]);
+  renderNewsList(filtered);
+  renderTrending(filtered);
+});
+
+// Category filter
+function filterCategory(cat){
+  const filtered = posts.filter(p => p.category === cat);
+  if(filtered.length) renderHero(filtered[0]);
+  renderNewsList(filtered);
+  renderTrending(filtered);
+}
+
+// Subscribe (placeholder)
+function subscribe(){
+  const email = $("#subEmail").value.trim();
+  if(!email){ alert("Enter your email to subscribe."); return; }
+  // In production: send to backend or service like Mailchimp/Formspree
+  alert("Thanks! We'll send updates to " + email);
+  $("#subEmail").value = "";
+}
+function openSubscribe(){ document.getElementById('subEmail').focus(); }
+
+// small helpers
+function escapeHtml(str){
+  return (str+'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m] });
+}
+
+// add current year
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// close modal on outside click or Esc
+modal.addEventListener('click', (e)=> { if(e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') closeModal(); });
+
+/* 
+  NOTES:
+  - To auto-load posts from a remote source, replace the static `posts` array with a fetch:
+      fetch('/api/posts.json').then(r=>r.json()).then(data => { posts = data; sort+render... })
+  - To show only the absolute latest in hero and exclude it from the list: modify renderNewsList to skip index 0.
+  - To persist subscriptions/comments: connect to a backend or a serverless service.
+*/
+</script>
+</body>
+</html>
